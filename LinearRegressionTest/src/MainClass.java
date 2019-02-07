@@ -147,13 +147,19 @@ public class MainClass
 		//System.out.println("MainClass.testStream:"+ t.findFirst().get());
 		
 		Stream<Instant> instantStream = t.map(Optional::get).map(ZonedDateTime::toInstant);
+		long total = 0;
 		
-		instantStream.collect(getTotalTime());
+		/*
+		 * calculation with collector
+		 */
+		total = instantStream.collect(getTotalTime());
 		
 		
+		/*
+		 * calculation with iteration
+		 */
 		/*Iterator<Instant> it = instantStream.iterator();
 		Instant previousInstant = null;
-		long total = 0;
 		while (it.hasNext()) 
 		{
 			Instant ins = (Instant) it.next();
@@ -165,10 +171,13 @@ public class MainClass
 			total += Duration.between(previousInstant, ins).toMillis();
 			previousInstant = ins;
 		}
+		*/
+		
+		
 		long hours = total/(1000*60*60);
 		long minutes = total/(1000*60) - hours*60;
 		
-		System.out.println("total time:"+hours+"h "+minutes+"min");*/
+		System.out.println("total time:"+hours+"h "+minutes+"min");
 		
 		//Stream<WayPoint> points = segment.findFirst().map(TrackSegment::points);
 		
@@ -180,17 +189,16 @@ public class MainClass
 	}
 	
 	//total time:14h 51min
-	public Collector<Instant, ?, Long> getTotalTime() 
+	
+	public Collector<Instant, ? ,Long> getTotalTime()
 	{
-		return Collector.of( 
+		return Collector.of(
 				() -> new TimeCollector(), 
 				TimeCollector::add,
-				TimeCollector::combine,
+				TimeCollector::combine, 
 				TimeCollector::getTotalTime
 				);
-		
 	}
-	
 	
 
 }

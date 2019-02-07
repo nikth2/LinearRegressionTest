@@ -25,5 +25,10 @@ public class TimeCollector
 	public TimeCollector combine(final TimeCollector other) {
 		throw new UnsupportedOperationException();
 	}
+	
+	public long getTotalTime()
+	{
+		return this.totalTime;
+	}
 
 }
