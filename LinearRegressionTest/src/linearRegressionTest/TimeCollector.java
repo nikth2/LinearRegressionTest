@@ -33,4 +33,9 @@ public class TimeCollector
 		return this.totalTime;
 	}
 
+	public void reset()
+	{
+		this.totalTime=0;
+	}
+
 }

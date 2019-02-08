@@ -1,8 +1,10 @@
 package linearRegressionTest;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -38,11 +40,34 @@ public class MainClass
 	{
 		try
 		{
-			GPX gpx = readGPXFile();
-			//testRoutes(getRoutes(gpx));
-			//testTracks(getTracks(gpx));
-			//getPathLength(gpx);
-			testStream(gpx);
+			ArrayList<MySegment> allSegments = new ArrayList<MySegment>();
+			File dir = new File("input");
+			File[] gpxFile = dir.listFiles();
+			for (int i = 0; i < gpxFile.length; i++) 
+			{
+				System.out.print(gpxFile[i].getName()+" ");
+				GPX gpx = GPX.reader().read(gpxFile[i]);
+				allSegments.addAll(getSegmentsFromGPX(gpx));
+			}
+			
+			double[][]x = getX(allSegments);
+			double[]y = getY(allSegments);
+			double[] beta = getRegressionVariables(x, y);
+			
+			double altitude = 1740;
+			double length = 199000;
+			
+			double prediction = beta[0] + altitude*beta[1]+length*beta[2];
+			
+			
+			System.out.println("nemea prediction:"+getHumanTime((long)prediction));
+			
+			altitude=3280;
+			length = 305445;
+			
+			prediction = beta[0] + altitude*beta[1]+length*beta[2];
+			
+			System.out.println("perseas prediction:"+getHumanTime((long)prediction));
 		}
 		catch(Exception e)
 		{
@@ -69,57 +94,64 @@ public class MainClass
 		
 	}
 	
+	public double[] getRegressionVariables(double[][]x, double[] y)
+	{
+		OLSMultipleLinearRegression olsr = new OLSMultipleLinearRegression();
+		
+		
+		olsr.newSampleData(y, x);
+		
+		double[] beta = olsr.estimateRegressionParameters(); 
+		
+		return beta;
+		
+	}
+	
+	public String getHumanTime(long time)
+	{
+		long hours = time /(1000*60*60);
+		long minutes = time /(1000*60) - hours*60;
+		
+		return hours+"h "+minutes+"min";
+	}
+	
+	/**
+	 * TODO: convert to Stream implementation
+	 * @param segments
+	 * @return
+	 */
+	public double[][] getX(ArrayList<MySegment> segments)
+	{
+		double x[][] = new double[segments.size()][2];
+		for (int i=0;i<segments.size();i++) 
+		{
+			x[i][0] = segments.get(i).getGainedAltitude();
+			x[i][1] = segments.get(i).getPathLength();
+		}
+		return x;
+	}
+	
+	/**
+	 * TODO: convert to Stream implementation
+	 * @param segments
+	 * @return
+	 */
+	public double[] getY(ArrayList<MySegment> segments)
+	{
+		double y[] = new double[segments.size()];
+		for (int i=0;i<segments.size();i++) 
+		{
+			y[i] = segments.get(i).getSegmentTime();
+		}
+		return y;
+	}
+	
 	
 	public GPX readGPXFile() throws IOException
 	{
 		return GPX.reader().read("input/Brevet_300.gpx");
 	}
 	
-	public List<Track> getTracks(GPX input)
-	{
-		return input.getTracks();
-	}
-	
-	public List<Route> getRoutes(GPX input)
-	{
-		return input.getRoutes();
-	}
-	
-	public void testTracks(List<Track> trackList)
-	{
-		for (Iterator<Track> it = trackList.iterator(); it.hasNext();) {
-			Track track = (Track) it.next();
-			System.out.println("MainClass.testTracks "+ track);
-			testSegments(track.getSegments());
-		}
-	}
-	
-	public void testSegments(List<TrackSegment> segments)
-	{
-		for (TrackSegment segment : segments)
-		{ 
-			System.out.println("MainClass.testSegments :"+segment);
-			testWayPoints(segment.getPoints());
-		}
-	}
-	
-	public void testWayPoints(List<WayPoint> points)
-	{
-		for (WayPoint wayPoint : points) 
-		{
-			System.out.println("MainClass.testWayPoints :"+wayPoint);
-		}
-		/*final Length distance = Geoid.WGS84.distance(points.get(0), points.get(points.size()-1));
-		System.out.println(distance);*/
-	}
-	
-	public void testRoutes(List<Route> routeList)
-	{
-		for (Route route : routeList) 
-		{
-			System.out.println("MainClass.testRoutes " + route.toString());
-		}
-	}
 	
 	public Length getPathLength(GPX gpx)
 	{
@@ -132,6 +164,24 @@ public class MainClass
 		return length;
 	}
 	
+	
+	public ArrayList<MySegment> getSegmentsFromGPX(GPX gpx)
+	{
+		Stream<Track> track = gpx.tracks();
+		Stream<TrackSegment> segment = track.flatMap(Track::segments);
+		Optional<TrackSegment> optional = segment.findFirst();
+		
+		TrackSegment tr = optional.get();
+		Stream<WayPoint> points = tr.points();
+		
+		
+		ArrayList<MySegment> mySegments = points.collect(getCustomSegments());
+		System.out.println("mySegments:"+mySegments.size()+" last:"+mySegments.get(mySegments.size()-1));
+		
+		return mySegments;
+	}
+	
+	
 	public void testStream(GPX gpx)
 	{
 		Stream<Track> track = gpx.tracks();
@@ -141,6 +191,11 @@ public class MainClass
 		TrackSegment tr = optional.get();
 		Stream<WayPoint> points = tr.points();
 		//Length length = points.collect(Geoid.WGS84.toTourLength());
+		
+		double totalElevation = points.collect(getTotalElevation());
+		System.out.println("totalElevation:"+totalElevation);
+		
+		points = tr.points();
 		
 		Stream<Optional<ZonedDateTime>> t = points.map(WayPoint::getTime);
 		//System.out.println("MainClass.testStream:"+ t.findFirst().get());
@@ -153,6 +208,13 @@ public class MainClass
 		 */
 		total = instantStream.collect(getTotalTime());
 		
+		points = tr.points();
+		ArrayList<MySegment> mySegments = points.collect(getCustomSegments());
+		System.out.println("mySegments:"+mySegments.size()+" last:"+mySegments.get(mySegments.size()-1));
+		
+		double[][]x = getX(mySegments);
+		double[]y = getY(mySegments);
+		getRegressionVariables(x, y);
 		
 		/*
 		 * calculation with iteration
@@ -196,6 +258,27 @@ public class MainClass
 				TimeCollector::add,
 				TimeCollector::combine, 
 				TimeCollector::getTotalTime
+				);
+	}
+	
+	public Collector<WayPoint, ? ,Double> getTotalElevation()
+	{
+		return Collector.of(
+				() -> new CustomCollector(), 
+				CustomCollector::add,
+				CustomCollector::combine, 
+				CustomCollector::getTotalElevation
+				);
+	}
+	
+	
+	public Collector<WayPoint, ? ,ArrayList<MySegment>> getCustomSegments()
+	{
+		return Collector.of(
+				() -> new CustomCollector(), 
+				CustomCollector::createSegment,
+				CustomCollector::combine, 
+				CustomCollector::getCustomSegments
 				);
 	}
 	
