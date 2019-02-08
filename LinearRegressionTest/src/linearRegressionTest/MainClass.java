@@ -1,7 +1,7 @@
+package linearRegressionTest;
+
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -14,7 +14,6 @@ import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 
 import io.jenetics.jpx.GPX;
 import io.jenetics.jpx.Length;
-import io.jenetics.jpx.Point;
 import io.jenetics.jpx.Route;
 import io.jenetics.jpx.Track;
 import io.jenetics.jpx.TrackSegment;
