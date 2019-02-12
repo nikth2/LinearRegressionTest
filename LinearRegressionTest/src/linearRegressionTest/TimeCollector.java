@@ -7,6 +7,7 @@ public class TimeCollector
 {
 	private Instant previousInstant;
 	private long totalTime;
+	private long relativeTime;
 	
 	public TimeCollector()
 	{
@@ -21,6 +22,7 @@ public class TimeCollector
 			return;
 		}
 		totalTime += Duration.between(previousInstant, inst).toMillis();
+		relativeTime += Duration.between(previousInstant, inst).toMillis();
 		previousInstant = inst;
 	}
 	
@@ -32,10 +34,16 @@ public class TimeCollector
 	{
 		return this.totalTime;
 	}
+	
+
+	public long getRelativeTime() {
+		return relativeTime;
+	}
+
 
 	public void reset()
 	{
-		this.totalTime=0;
+		this.relativeTime=0;
 	}
 
 }

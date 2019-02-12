@@ -5,7 +5,9 @@ public class MySegment
 	private long gainedAltitude;
 	private long segmentTime;
 	private long pathLength;
-	
+	private long relativeTime;
+	private long relativeAltitude;
+	private long relativeDistance;
 	
 	
 	public MySegment(long gainedAltitude, long segmentTime, long pathLength) {
@@ -14,7 +16,18 @@ public class MySegment
 		this.segmentTime = segmentTime;
 		this.pathLength = pathLength;
 	}
+	
 
+	public MySegment(long gainedAltitude, long segmentTime, long pathLength, long relativeTime, long relativeAltitude,
+			long relativeDistance) {
+		super();
+		this.gainedAltitude = gainedAltitude;
+		this.segmentTime = segmentTime;
+		this.pathLength = pathLength;
+		this.relativeTime = relativeTime;
+		this.relativeAltitude = relativeAltitude;
+		this.relativeDistance = relativeDistance;
+	}
 
 
 	public long getGainedAltitude() {
@@ -46,27 +59,58 @@ public class MySegment
 	}
 
 
-
 	public void setPathLength(long pathLength) {
 		this.pathLength = pathLength;
 	}
 	
-	public String getHumanTime()
+	public String getHumanTime(long time)
 	{
-		long hours = this.segmentTime /(1000*60*60);
-		long minutes = this.segmentTime /(1000*60) - hours*60;
+		long hours = time /(1000*60*60);
+		long minutes = time /(1000*60) - hours*60;
 		
 		return hours+"h "+minutes+"min";
 	}
 	
 
+	public long getRelativeTime() {
+		return relativeTime;
+	}
+
+
+	public void setRelativeTime(long relativeTime) {
+		this.relativeTime = relativeTime;
+	}
+
+
+	public long getRelativeAltitude() {
+		return relativeAltitude;
+	}
+
+
+	public void setRelativeAltitude(long relativeAltitude) {
+		this.relativeAltitude = relativeAltitude;
+	}
+
+
+	public long getRelativeDistance() {
+		return relativeDistance;
+	}
+
+
+	public void setRelativeDistance(long relativeDistance) {
+		this.relativeDistance = relativeDistance;
+	}
 
 
 	@Override
 	public String toString() {
-		return "MySegment [gainedAltitude=" + gainedAltitude + ", segmentTime=" + getHumanTime() + ", pathLength="
-				+ pathLength + "]";
+		return "MySegment [gainedAltitude=" + gainedAltitude + ", segmentTime=" + getHumanTime(segmentTime) + ", pathLength="
+				+ pathLength + ", relativeTime=" + getHumanTime(relativeTime) + ", relativeAltitude=" + relativeAltitude
+				+ ", relativeDistance=" + relativeDistance + "]";
 	}
+	
+
+	
 	
 	
 }
