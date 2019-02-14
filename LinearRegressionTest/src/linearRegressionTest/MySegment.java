@@ -104,8 +104,8 @@ public class MySegment
 
 	@Override
 	public String toString() {
-		return "MySegment [gainedAltitude=" + gainedAltitude + ", segmentTime=" + getHumanTime(segmentTime) + ", pathLength="
-				+ pathLength + ", relativeTime=" + getHumanTime(relativeTime) + ", relativeAltitude=" + relativeAltitude
+		return "MySegment [gainedAltitude=" + gainedAltitude + ", segmentTime Human=" + getHumanTime(segmentTime) + ", pathLength="
+				+ pathLength + ", segmentTime=" + segmentTime + ", relativeAltitude=" + relativeAltitude
 				+ ", relativeDistance=" + relativeDistance + "]";
 	}
 	

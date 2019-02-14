@@ -59,9 +59,9 @@ public class MainClass
 			 */
 			System.out.println("\n/*\n*1st run based on total values\n*/");
 			{
-				double[][]x = getX(allSegments.stream());
-				double[]y = getY(allSegments.stream());
-				double[] beta = getRegressionVariables(x, y);
+				double[][]x = util.getX(allSegments.stream());
+				double[]y = util.getY(allSegments.stream());
+				double[] beta = util.getRegressionVariables(x, y);
 
 				double altitude = 1740;
 				double length = 199000;
@@ -86,7 +86,7 @@ public class MainClass
 				System.out.println("\n/*\n*2nd run based on relative values\n*/");
 				double[][]x = getRelativeX(allSegments);
 				double[]y = getRelativeY(allSegments);
-				double[] beta = getRegressionVariables(x, y);
+				double[] beta = util.getRegressionVariables(x, y);
 
 				double altitude = 1740;
 				double length = 199000;
@@ -109,9 +109,9 @@ public class MainClass
 			 */
 			System.out.println("\n/*\n*3rd run based on total values no intercept \n*/");
 			{
-				double[][]x = getX(allSegments.stream());
-				double[]y = getY(allSegments.stream());
-				double[] beta = getRegressionVariables(x, y);
+				double[][]x = util.getX(allSegments.stream());
+				double[]y = util.getY(allSegments.stream());
+				double[] beta = util.getRegressionVariables(x, y);
 
 				double altitude = 1800;
 				double length = 100000;
@@ -128,9 +128,9 @@ public class MainClass
 			 */
 			{
 				System.out.println("\n/*\n*4th run fiction course based on total values\n*/");
-				double[][]x = getX(allSegments.stream());
-				double[]y = getY(allSegments.stream());
-				double[] beta = getRegressionVariables(x, y);
+				double[][]x = util.getX(allSegments.stream());
+				double[]y = util.getY(allSegments.stream());
+				double[] beta = util.getRegressionVariables(x, y);
 
 				double altitude = 470;
 				double length = 47000;
@@ -168,21 +168,6 @@ public class MainClass
 		
 	}
 	
-	public double[] getRegressionVariables(double[][]x, double[] y)
-	{
-		OLSMultipleLinearRegression olsr = new OLSMultipleLinearRegression();
-		
-		
-		olsr.newSampleData(y, x);
-		
-		double[] beta = olsr.estimateRegressionParameters(); 
-		
-		return beta;
-		
-	}
-	
-	
-	
 	
 	/**
 	 * TODO: convert to Stream implementation
@@ -200,10 +185,7 @@ public class MainClass
 		return x;
 	}
 	
-	public double[][] getX(Stream<MySegment> sgStream)
-	{
-		return sgStream.collect(util.getIndependentVariables());
-	}
+	
 	
 	
 	
@@ -233,11 +215,6 @@ public class MainClass
 		return y;
 	}
 	
-	public double[] getY(Stream<MySegment> sgStream)
-	{
-		//return sgStream.collect(getDependentVariables())[][0];
-		return sgStream.mapToDouble(MySegment::getSegmentTime).toArray();
-	}
 	
 	/**
 	 * TODO: convert to Stream implementation
